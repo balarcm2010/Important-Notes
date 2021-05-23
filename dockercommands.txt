@@ -1,0 +1,274 @@
+How to install docker?
+
+Update the packages on your instance
+
+[ec2-user ~]$ sudo yum update -y
+
+Install Docker
+
+[ec2-user ~]$ sudo yum install docker -y
+
+Start the Docker Service
+
+[ec2-user ~]$ sudo service docker start
+
+Add the ec2-user to the docker group so you can execute Docker commands without using sudo.
+
+[ec2-user ~]$ sudo usermod -aG docker ec2-user
+
+********************************************************************
+how to get the informations which is in docker?
+
+docker info
+
+How to pull any image from docker hub (centos)?
+
+docker pull centos
+*************************************************************
+How to connect or run to the docker container in interactive terminal or foreground mode to centos? (Container)
+
+docker run -it centos bash----->IT stands for interactive terminal
+
+How to Exit from the interactive terminal(Container)
+
+exit
+**************************************************************
+How to check the process status for Docker?
+docker ps
+
+How to check the images in the docker ?
+docker images
+***********************************************************************************
+Note:  Once you exit from the container the process status will not show anything about container.
+       Interactive mode runs in foregrond mode.
+*************************************************************************************
+
+How to run the docker container in detached mode or in background mode to centos?
+
+docker run -dt centos bash----->DT stands for detached mode
+   It will run in background mode.
+*****************************************************************************************
+How to Relogin to the docker container which is running in the background mode or detached mode?
+
+docker ps
+
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+36bb73826e16        centos              "bash"              31 seconds ago      Up 30 seconds                           elated_hopper
+
+[root@ip-172-31-81-201 ~]# docker exec -it 36bb73826e16 bash     (Usage:  docker exec [OPTIONS] CONTAINER COMMAND [ARG...])
+[root@36bb73826e16 /]#
+
+Note : The background mode for the container wont stop automatically as like foreground mode .It will run in the background if you exit also.
+       If you type exit command  in the foreground mode we will automatically exit from the container.
+  If you type exit command  in the background mode we will not exit from container it will be still running until we execute stop command.
+ 
+**********************************************************************************************************************************
+How to stop the container ?
+
+docker container stop 36bb73826e16
+
+Note :  We can stop Containers but we cant stop images.
+
+
+****************************************************************************************************************************
+How to check the running and stopped containers which are present?
+
+[root@ip-172-31-81-201 ~]# docker ps -a
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                      PORTS               NAMES
+36220a11097a        centos              "bash"              20 minutes ago      Exited (0) 20 minutes ago                       elegant_lalande
+36bb73826e16        centos              "bash"              20 minutes ago      Exited (0) 11 minutes ago                       elated_hopper
+4c8a7adfe4b9        centos              "bash"              35 minutes ago      Exited (0) 34 minutes ago                       boring_visvesvaraya
+680d448df337        centos              "bash"              36 minutes ago      Exited (0) 36 minutes ago                       keen_ellis
+d69165298c2b        centos              "bash"              18 hours ago        Exited (0) 18 hours ago                         loving_chatelet
+928b86f9beee        centos              "bash"              18 hours ago        Exited (127) 18 hours ago                       sad_rubin
+[root@ip-172-31-81-201 ~]#
+
+*******************************************************************************************************************************
+The below command is used to delete the container automatically after exiting from the container.
+
+docker run --rm -it --name first_container --hostname ubuntu  ubuntu bash
+
+--rm         represents removing the container automatically
+--name       represents manually creating the container name
+-it          represents interactive terminal
+--hostname   we can add our hostname whichever we want.
+ubuntu       represents the image which is pulling from docker registry whihch is hub.docker.com
+*********************************************************************************************************************************
+Docker container run on a concept called copy on write .
+
+Containers are usually immutable or temporary.
+To solve this we got dockervolumes and Bind mounts.
+
+Working with volumes
+--------------------
+1. To keep data around when container is removed
+2. To share data between host and container.
+Few points  about volumes:
+-------------------------
+ A data volume is a specially designed directory in the container.
+ 
+ It is initialized when the container is created. By default, it is not deleted  when the container is stopped.
+ 
+ The data volumes are independently updated.Data volumes can be shared across containers.
+
+
+************************************************************************************************************************************
+How to create a volume in docker container?
+
+docker container run -it --name second -v /data ubuntu bash
+
+-v represents creation of volumes in container  /data path .
+
+***************************************************************************************************************************
+How to find the volume name and the list of volumes?
+
+docker volume ls
+DRIVER              VOLUME NAME
+local               80835e29a68dfca6fa05028fadb004a72e5eeaa5b271a9aa4c388aa5d9a0ad5e
+
+***************************************************************************************************************************
+How to find the information of the container?
+
+docker inspect container container_name or container_id
+
+***********************************************************************************************************************
+How to get docker volume path mounted ?
+
+docker volume inspect volume_id(80835e29a68dfca6fa05028fadb004a72e5eeaa5b271a9aa4c388aa5d9a0ad5e)
+
+Output:
+
+[
+    {
+        "CreatedAt": "2020-04-07T16:56:27Z",
+        "Driver": "local",
+        "Labels": null,
+        "Mountpoint": "/var/lib/docker/volumes/80835e29a68dfca6fa05028fadb004a72e5eeaa5b271a9aa4c388aa5d9a0ad5e/_data",
+        "Name": "80835e29a68dfca6fa05028fadb004a72e5eeaa5b271a9aa4c388aa5d9a0ad5e",
+        "Options": null,
+        "Scope": "local"
+    }
+]
+[root@ip-172-31-81-201 ~]#
+
+*********************************************************************************************************************************
+How to create a volume with the name manually?
+
+docker container run -it --name third -v my_data:/my_data centos bash
+
+my_data: represents the name of the volume
+**********************************************************************************************************
+How to get mysql from docker hub and get installed ?
+
+Steps:
+
+Login hub.dockerhub.com
+Type mysql in search bar
+click on the official mysql image
+scroll down you can see    : Starting a MySQL instance is simple:
+
+
+docker run --name mysql1 -v mysql_data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=bala -d mysql
+
+i have done some changes :
+
+-v mysql_data:/var/lib/mysql    : represents the named volume created manually with the path which we got from the docker file below.
+
+Then open docker file for the latest in separate new tab.
+
+(Supported tags and respective Dockerfile links)
+
+once it get get installed check the below step.
+
+docker volume ls
+
+login into mysql container
+
+docker exec -it mysql1 bash
+
+connect to mysql from the below
+
+mysql -u root -p
+
+there is no password for mysql by default ,you can click enter.
+
+
+**********************************************************************************************************
+how to start the container id which is in exited sttus?
+
+docker start container_id
+
+******************************************************************************************************
+How to remove a docker container?
+
+docker rm [OPTIONS] CONTAINER [CONTAINER...]
+
+***************************************************************************************************
+How to remove all stopped containers?
+
+Docker container prune
+
+***************************************************************************************
+How to check the port of the docker container?
+
+docker container port Container_id
+
+*********************************************************************
+How to find the ip address on putty ?
+
+curl -4 icanhazip.com
+
+******************************************************************************
+How to create a container and pull the image and mount to the image path which is on dockerhub?
+
+docker run --name wordpress -e /root/wp-mysql:/var/lib/mysql -p 8080:80 -d wordpress
+
+************************************************************************************
+what is npm ?
+
+Node package manager.
+
+****************************************************
+netstat -ntpl
+
+npm -install ----> for installing all the dependencies and modules.
+
+
+
+****************************************************************************************************************
+Building Custom image for Node JS Application
+Goal: The purpose of this image is to Create Node js Application
+
+Steps to building your own image
+Be in the directory Node-Js-Sample-App
+
+cd Node-Js-Sample-App
+docker build -t ravi2krishna/node-app .
+docker run -p 8080:8080 -d <user-name>/<image-name>
+docker run -p 8080:8080 -d ravi2krishna/node-app
+Saving the image to docker hub
+Register for an account on hub.docker.com
+In server machine
+# docker login
+# docker images
+# docker push docker-user_id/image-name
+# docker push ravi2krishna/node-a
+
+**************************************************************
+docker tag container_id docker usename
+
+******************************************************************************
+Why Containers?
+
+VM's contain an entire copy of an os plus simulations  of all the hardaware .Containers have only what app needs to run.
+
+what containers can?
+
+    :Standup(Tear down) instances quickly
+: Distribute the whole app including the "server" to ready to run state
+    : Run the container on the devolper machine as well on production
+    : Easily manage automation to provision and orchestrate container instances.
+
+In short container use fewer resources and orchestration is lot easier with containers.
+
+*******************************************************************************************
